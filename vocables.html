@@ -57,6 +57,9 @@
 	quests = [];
 	round = 0;
 	actualWord = [];
+	anzahl = 0;
+	progressbar = null;
+	progressLabel = null;
 
 	$( function() {
 		$( "#btnLos" ).button();
@@ -71,8 +74,30 @@
 			checkWord();
 		} );
 	
+		progressbar = $( "#progressbar" );
+      	progressLabel = $( ".progress-label" );
+ 
+		progressbar.progressbar({
+		value: false,
+		change: function() {
+			progressLabel.text( progressbar.progressbar( "value" ) + "%" );
+		},
+		complete: function() {
+			progressLabel.text( "Complete!" );
+		}
+		});
+
 	});
 
+ 
+    function progress() {
+		let pcval = 0;
+		if (anzahl > 0) {
+			pcval = ((anzahl-actUnit.length)*100/anzahl);
+		}
+        progressbar.progressbar( "value", pcval );
+    }	
+	
 	$(document).keypress(function (e) {
         if (e.keyCode === 13) {
             checkWord();
@@ -122,7 +147,7 @@
 		});
 	}
 	function mischen() {
-		let anzahl=actUnit.length;
+		anzahl=actUnit.length;
 		for (let l=0;l<50;l++) {
 			let k = actUnit.pop();
 			let z = Math.floor(Math.random()*anzahl);
@@ -134,6 +159,7 @@
 		$("#sprache2Feld1").val("");
 		$("#sprache2Feld2").val("");
 		$("#sprache2Feld3").val("");
+		progress();
     	if (actUnit.length > 0) {
         	round++;
         	actualWord = actUnit.pop();
@@ -145,8 +171,11 @@
 				$("#sprache1Feld1").val($("#sprache1Feld1").val()+", "+actualWord.lang1w3);
 			}
       	} else {
+			actualWord = null;
+			actUnit = null;
         	showmessage("Super! Fertig mit allen Wörtern.");
       	}
+		
     }
 
     function checkWord() {
@@ -155,7 +184,7 @@
 			($("#sprache2Feld1").val() === actualWord.lang2w3) ) {
        		showmessage("word okay");
       	} else {
-        	showmessage("Übersetzung lautet "+ actualword.lang2w1);
+        	showmessage("Übersetzung lautet " + actualWord.lang2w1);
 	        actUnit.splice(0, 0, actualWord);
     	}
 		showNextQuestion();
@@ -180,7 +209,7 @@
 	<select id="unitauswahl"></select><button id="btnLos">los</button>
 </div>
 </br>
-
+<div id="progressbar"><div class="progress-label">...</div></div>
 <fieldset>
 	<div>
 		<label for="sprache1Feld1">Englisch</label>
